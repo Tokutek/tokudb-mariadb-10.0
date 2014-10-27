@@ -24,7 +24,7 @@ function get_repo() {
 function get_source_from_repos() {
     local mariadbserver=$1; local tokudb=$2; local buildtype=$3
 
-    # get percona server source
+    # get mariadb-10 source
     get_repo Tokutek mariadb-10.0 $mariadbserver
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
     mv mariadb-10.0 $mariadbserver
@@ -33,6 +33,11 @@ function get_source_from_repos() {
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
     mv tokudb-engine/storage/tokudb $mariadbserver/storage
     rm -rf tokudb-engine
+
+    get_repo Tokutek tokudb-mariadb-10.0 $tokudb
+    if [ $? -ne 0 ] ; then test 1 = 0; return; fi
+    mv tokudb-mariadb-10.0/mysql-test $mariadbserver/storage/tokudb
+    rm -rf tokudb-mariadb-10.0    
 
     get_repo Tokutek ft-index $tokudb
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
