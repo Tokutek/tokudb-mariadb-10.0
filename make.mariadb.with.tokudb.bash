@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage() {
-    echo "make.mariadb.with.tokudb.bash mariadb-10.0.14 tokudb-7.5.1"
+    echo "make.mariadb.with.tokudb.bash mariadb-10.0.15 tokudb-7.5.3"
 }
 
 # download a github repo as a tarball and expand it in a local directory
@@ -28,6 +28,11 @@ function get_source_from_repos() {
     get_repo Tokutek mariadb-10.0 $mariadbserver
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
     mv mariadb-10.0 $mariadbserver
+
+    pushd $mariadbserver/storage
+    if [ $? -ne 0 ] ; then test 1 = 0; return; fi
+    if [ -d tokudb ] ; then rm -rf tokudb; fi
+    popd
 
     get_repo Tokutek tokudb-engine $tokudb
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
@@ -64,6 +69,7 @@ function build_tarballs_from_source() {
     else
         cmake_args="$cmake_args -DEXTRA_VERSION=-$tokudb"
     fi
+    cmake_args="$cmake_args -DTOKUDB_VERSION=$tokudb"
     cmake $cmake_args ../$mariadbserver
     if [ $? -ne 0 ] ; then test 1 = 0; return; fi
     make -j8 package
